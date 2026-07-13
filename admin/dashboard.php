@@ -59,6 +59,25 @@ $usedText = $totalSpace !== false ? formatBytes($usedSpace) . " Used of " . form
         </div>
     </div>
 
+    <h3 style="margin-top: 3rem; margin-bottom: 1rem;">Recent Visitor Log</h3>
+    <div style="overflow-x:auto; background:var(--dark-2); border:1px solid var(--gray-light); border-radius:8px;">
+        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.9rem;">
+            <thead style="background:var(--dark-3); border-bottom:1px solid var(--gray-light);">
+                <tr>
+                    <th style="padding:1rem;">IP Address</th>
+                    <th style="padding:1rem;">Country</th>
+                    <th style="padding:1rem;">City</th>
+                    <th style="padding:1rem;">Date</th>
+                    <th style="padding:1rem;">Time</th>
+                    <th style="padding:1rem;">Device / Browser</th>
+                </tr>
+            </thead>
+            <tbody id="raw-data-body">
+                <tr><td colspan="6" style="padding:1rem; text-align:center; color:var(--gray);">Loading data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <h2 style="margin-top: 3rem;">Portfolio Storage Stats</h2>
     <div class="stats-cards">
         <div class="stat-card" style="border-left: 4px solid #3498db;">
@@ -132,6 +151,24 @@ async function loadAnalytics() {
         },
         options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
     });
+
+    // Populate Raw Data Table
+    const tbody = document.getElementById('raw-data-body');
+    if (!json.raw_data || json.raw_data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:1rem; text-align:center; color:var(--gray);">No visitors found for this period.</td></tr>';
+    } else {
+        tbody.innerHTML = json.raw_data.map(row => {
+            const timeStr = row.visit_time ? row.visit_time.split(' ')[1] : '';
+            return `<tr style="border-bottom:1px solid var(--dark-3);">
+                <td style="padding:1rem;">${row.ip_address || ''}</td>
+                <td style="padding:1rem;">${row.country || ''}</td>
+                <td style="padding:1rem;">${row.city || ''}</td>
+                <td style="padding:1rem;">${row.visit_date || ''}</td>
+                <td style="padding:1rem;">${timeStr}</td>
+                <td style="padding:1rem; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${row.user_agent || ''}">${row.user_agent || 'Unknown'}</td>
+            </tr>`;
+        }).join('');
+    }
 }
 
 document.addEventListener('DOMContentLoaded', loadAnalytics);
