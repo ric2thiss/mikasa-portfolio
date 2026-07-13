@@ -25,16 +25,6 @@ if (empty($images)) {
 }
 
 $displayType = $category['display_type'] ?? 'carousel';
-
-/**
- * Generate a thumbnail URL via thumb.php
- * @param string $src  Original image path
- * @param int    $w    Desired width
- * @param int    $q    Quality (1-95)
- */
-function thumb($src, $w = 800, $q = 75) {
-    return 'thumb.php?src=' . urlencode($src) . '&w=' . $w . '&q=' . $q;
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -91,24 +81,12 @@ function thumb($src, $w = 800, $q = 75) {
                 </button>
                 <div class="carousel-track-wrapper">
                     <div class="carousel-track" id="carousel-track">
-                        <?php foreach ($images as $i => $img): 
-                            $imgPath = htmlspecialchars($img['image_path']);
-                            $alt = htmlspecialchars($img['caption'] ?? $category['category_name']);
-                            // First 3 slides: load medium-res immediately; rest: defer via data-src
-                            if ($i < 3): ?>
-                        <div class="carousel-slide <?= $i === 0 ? 'active' : '' ?>" data-index="<?= $i ?>" data-full="<?= $imgPath ?>">
-                            <img src="<?= thumb($img['image_path'], 900, 80) ?>" 
-                                 alt="<?= $alt ?>"
-                                 loading="eager">
+                        <?php foreach ($images as $i => $img): ?>
+                        <div class="carousel-slide <?= $i === 0 ? 'active' : '' ?>" data-index="<?= $i ?>">
+                            <img src="<?= htmlspecialchars($img['image_path']) ?>" 
+                                 alt="<?= htmlspecialchars($img['caption'] ?? $category['category_name']) ?>"
+                                 loading="<?= $i < 3 ? 'eager' : 'lazy' ?>">
                         </div>
-                            <?php else: ?>
-                        <div class="carousel-slide" data-index="<?= $i ?>" data-full="<?= $imgPath ?>">
-                            <img data-src="<?= thumb($img['image_path'], 900, 80) ?>" 
-                                 src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600'%3E%3Crect fill='%23111'/%3E%3C/svg%3E"
-                                 alt="<?= $alt ?>"
-                                 class="lazy">
-                        </div>
-                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -116,13 +94,12 @@ function thumb($src, $w = 800, $q = 75) {
                     <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
             </div>
-            <!-- Thumbnail Strip (tiny 100px thumbnails) -->
+            <!-- Thumbnail Strip -->
             <div class="carousel-thumbnails" id="carousel-thumbnails">
                 <?php foreach ($images as $i => $img): ?>
                 <button class="thumb <?= $i === 0 ? 'active' : '' ?>" data-index="<?= $i ?>">
-                    <img src="<?= thumb($img['image_path'], 100, 60) ?>" 
-                         alt="Thumbnail <?= $i + 1 ?>"
-                         loading="lazy">
+                    <img src="<?= htmlspecialchars($img['image_path']) ?>" 
+                         alt="Thumbnail <?= $i + 1 ?>">
                 </button>
                 <?php endforeach; ?>
             </div>
@@ -131,36 +108,34 @@ function thumb($src, $w = 800, $q = 75) {
         <?php else: ?>
         <!-- ===== MASONRY / RANDOM GRID DISPLAY ===== -->
         <section class="gallery-grid-masonry" id="gallery-grid">
-            <?php foreach ($images as $i => $img): 
-                $imgPath = htmlspecialchars($img['image_path']);
-            ?>
-            <div class="masonry-item" data-index="<?= $i ?>" data-full="<?= $imgPath ?>">
-                <img data-src="<?= thumb($img['image_path'], 500, 70) ?>" 
-                     src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='400'%3E%3Crect fill='%23111'/%3E%3C/svg%3E"
+            <?php foreach ($images as $i => $img): ?>
+            <div class="masonry-item" data-index="<?= $i ?>">
+                <img src="<?= htmlspecialchars($img['image_path']) ?>" 
                      alt="<?= htmlspecialchars($img['caption'] ?? $category['category_name']) ?>"
-                     class="lazy">
+                     loading="lazy">
             </div>
             <?php endforeach; ?>
         </section>
         <?php endif; ?>
 
-        <!-- ===== FULLSCREEN LIGHTBOX ===== -->
-        <div class="lightbox" id="lightbox">
-            <button class="lightbox-close" id="lightbox-close" aria-label="Close">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous">
-                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <div class="lightbox-image-wrap">
-                <img id="lightbox-img" src="" alt="Fullscreen view">
-            </div>
-            <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">
-                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-            <div class="lightbox-counter" id="lightbox-counter"></div>
-        </div>
     </main>
+
+    <!-- ===== FULLSCREEN LIGHTBOX (outside gallery-page so z-index works above nav) ===== -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightbox-close" aria-label="Close">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="lightbox-image-wrap">
+            <img id="lightbox-img" src="" alt="Fullscreen view">
+        </div>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
+    </div>
 
     <!-- Footer -->
     <footer>
