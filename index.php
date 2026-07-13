@@ -2,12 +2,22 @@
 
 // Track Visitor
 try {
+    // Robust Real IP Detection for all proxies (Cloudflare, Hostinger, Nginx, etc)
     $ip = $_SERVER['REMOTE_ADDR'];
-    if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-        $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ipList = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-        $ip = trim($ipList[0]);
+    $headersToCheck = [
+        'HTTP_CF_CONNECTING_IP',
+        'HTTP_X_REAL_IP',
+        'HTTP_CLIENT_IP',
+        'HTTP_X_FORWARDED_FOR',
+        'HTTP_X_FORWARDED'
+    ];
+    
+    foreach ($headersToCheck as $header) {
+        if (!empty($_SERVER[$header])) {
+            $ipList = explode(',', $_SERVER[$header]);
+            $ip = trim($ipList[0]);
+            break;
+        }
     }
     
     $date = date('Y-m-d');
