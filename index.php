@@ -16,7 +16,7 @@ $heroTags = array_filter(array_map('trim', explode(',', $s['hero_tags'] ?? '')))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mikasa Fine Arts Photography | Dubai | UAE</title>
+    <title>Mikasa Fine Arts Photography | Dubai</title>
     <meta name="description"
         content="Mikasa — Freelance Fine Arts Photographer in Dubai. Fashion, Portraits, Weddings, Events & Graphic Design.">
     <link rel="stylesheet" href="assets/css/styles.css">
