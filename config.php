@@ -1,8 +1,11 @@
 <?php
 $host = 'localhost';
-$dbname = 'mikasa_portfolio';
-$username = 'root';
-$password = '';
+// $dbname = 'mikasa_portfolio';
+$dbname = 'u298762295_mikasa';
+$username = 'u298762295_mikasa';
+$password = '&m*$sK?Om5nD';
+// $username = 'root';
+// $password = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
@@ -15,7 +18,8 @@ try {
 /**
  * Get a setting value by key
  */
-function getSetting($pdo, $key, $default = '') {
+function getSetting($pdo, $key, $default = '')
+{
     $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = ?");
     $stmt->execute([$key]);
     $row = $stmt->fetch();
@@ -25,7 +29,8 @@ function getSetting($pdo, $key, $default = '') {
 /**
  * Get all settings as key => value array
  */
-function getAllSettings($pdo) {
+function getAllSettings($pdo)
+{
     $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
     $settings = [];
     while ($row = $stmt->fetch()) {
@@ -37,7 +42,8 @@ function getAllSettings($pdo) {
 /**
  * Update or insert a setting
  */
-function updateSetting($pdo, $key, $value) {
+function updateSetting($pdo, $key, $value)
+{
     $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
     $stmt->execute([$key, $value, $value]);
 }
