@@ -18,5 +18,5 @@ jobs:
           username: ${{ secrets.HOSTINGER_USER }}
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
           script: |
-            cd YOUR_WEBSITE_DIRECTORY
+            cd /home/u298762295/domains/sr-magallanes.com/public_html/mikasa
             git pull origin main
