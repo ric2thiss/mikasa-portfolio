@@ -28,10 +28,10 @@ if (!$portfolio) {
                 <input type="text" name="caption" placeholder="Enter image caption" style="width:100%;padding:0.6rem;background:var(--dark-3);border:1px solid var(--gray-light);color:var(--light);border-radius:4px">
             </div>
             <div class="form-group" style="flex: 1; min-width: 200px; margin: 0">
-                <label>Image File *</label>
-                <input type="file" name="image" accept="image/*" required style="width:100%;padding:0.4rem;background:var(--dark-3);border:1px solid var(--gray-light);color:var(--light);border-radius:4px">
+                <label>Image Files (Select multiple) *</label>
+                <input type="file" name="images[]" accept="image/*" multiple required style="width:100%;padding:0.4rem;background:var(--dark-3);border:1px solid var(--gray-light);color:var(--light);border-radius:4px">
             </div>
-            <button type="submit" class="save-btn" style="height: 38px; margin: 0; padding: 0 1.5rem">Upload Image</button>
+            <button type="submit" class="save-btn" style="height: 38px; margin: 0; padding: 0 1.5rem">Upload Images</button>
         </form>
     </div>
 

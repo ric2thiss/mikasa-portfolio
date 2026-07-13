@@ -212,23 +212,49 @@ try {
         case 'add_gallery_image':
             $portfolioId = $_POST['portfolio_id'] ?? 0;
             $caption = $_POST['caption'] ?? '';
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../assets/images/portfolio/';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            
+            $sort = $pdo->prepare("SELECT COALESCE(MAX(sort_order), 0) FROM gallery_images WHERE portfolio_id=?");
+            $sort->execute([$portfolioId]);
+            $maxSort = $sort->fetchColumn();
+
+            $uploaded = 0;
+            $uploadDir = __DIR__ . '/../assets/images/portfolio/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            // Handle multiple files
+            if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
+                $count = count($_FILES['images']['name']);
+                for ($i = 0; $i < $count; $i++) {
+                    if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
+                        $ext = pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION);
+                        $filename = 'gallery_' . time() . '_' . uniqid() . '.' . $ext;
+                        if (move_uploaded_file($_FILES['images']['tmp_name'][$i], $uploadDir . $filename)) {
+                            $imagePath = 'assets/images/portfolio/' . $filename;
+                            $maxSort++;
+                            $stmt = $pdo->prepare("INSERT INTO gallery_images (portfolio_id, image_path, caption, sort_order) VALUES (?,?,?,?)");
+                            $stmt->execute([$portfolioId, $imagePath, $caption, $maxSort]);
+                            $uploaded++;
+                        }
+                    }
+                }
+            } 
+            // Fallback for single file upload just in case
+            elseif (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
                 $filename = 'gallery_' . time() . '_' . uniqid() . '.' . $ext;
-                move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename);
-                $imagePath = 'assets/images/portfolio/' . $filename;
-                
-                $sort = $pdo->prepare("SELECT COALESCE(MAX(sort_order), 0) FROM gallery_images WHERE portfolio_id=?");
-                $sort->execute([$portfolioId]);
-                $maxSort = $sort->fetchColumn() + 1;
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
+                    $imagePath = 'assets/images/portfolio/' . $filename;
+                    $maxSort++;
+                    $stmt = $pdo->prepare("INSERT INTO gallery_images (portfolio_id, image_path, caption, sort_order) VALUES (?,?,?,?)");
+                    $stmt->execute([$portfolioId, $imagePath, $caption, $maxSort]);
+                    $uploaded++;
+                }
+            }
 
-                $stmt = $pdo->prepare("INSERT INTO gallery_images (portfolio_id, image_path, caption, sort_order) VALUES (?,?,?,?)");
-                $stmt->execute([$portfolioId, $imagePath, $caption, $maxSort]);
+            if ($uploaded > 0) {
                 echo json_encode(['success' => true]);
             } else {
-                echo json_encode(['success' => false, 'error' => 'No image uploaded']);
+                echo json_encode(['success' => false, 'error' => 'No images uploaded']);
             }
             break;
 
