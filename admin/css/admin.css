@@ -1,0 +1,413 @@
+/* ===== ADMIN LAYOUT ===== */
+.admin-body {
+    display: flex;
+    min-height: 100vh;
+    background: var(--dark);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--dark-2);
+    border-right: 1px solid var(--gray-light);
+    display: flex;
+    flex-direction: column;
+    z-index: 600;
+    transition: transform 0.4s var(--ease);
+}
+
+.sidebar-brand {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.sb-name {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--light);
+    display: block;
+}
+
+.sb-tag {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-top: 4px;
+    display: block;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 1rem 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 0.85rem 1.5rem;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    color: var(--gray);
+    transition: all 0.3s ease;
+    border-left: 2px solid transparent;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    color: var(--light);
+    background: rgba(255,255,255,0.03);
+    border-left-color: var(--light);
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--gray-light);
+}
+
+.view-site-btn {
+    display: block;
+    text-align: center;
+    padding: 0.8rem;
+    border: 1px solid var(--gray-light);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--light);
+    transition: all 0.3s ease;
+}
+
+.view-site-btn:hover {
+    background: var(--light);
+    color: var(--dark);
+}
+
+/* ===== MOBILE TOPBAR ===== */
+.admin-topbar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: var(--dark-2);
+    border-bottom: 1px solid var(--gray-light);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 599;
+}
+
+.admin-hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.admin-hamburger span {
+    width: 24px;
+    height: 1.5px;
+    background: var(--light);
+    transition: all 0.3s ease;
+}
+
+/* ===== MAIN CONTENT ===== */
+.admin-main {
+    margin-left: 260px;
+    padding: 3rem;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+}
+
+.admin-header h1 {
+    font-size: 2rem;
+    color: var(--light);
+    margin-bottom: 0.5rem;
+}
+
+.admin-header p {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 2.5rem;
+}
+
+/* ===== ALERT ===== */
+.admin-alert {
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    transition: all 0.4s ease;
+}
+
+.admin-alert.success {
+    background: rgba(80,200,120,0.12);
+    color: #50c878;
+    border: 1px solid rgba(80,200,120,0.25);
+}
+
+.admin-alert.error {
+    background: rgba(255,80,80,0.12);
+    color: #ff5050;
+    border: 1px solid rgba(255,80,80,0.25);
+}
+
+.admin-alert.hidden { display: none; }
+
+/* ===== CARD ===== */
+.admin-card {
+    background: var(--dark-2);
+    border: 1px solid var(--gray-light);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.admin-card.hidden { display: none; }
+
+.admin-card h2 {
+    font-size: 1.4rem;
+    color: var(--light);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.admin-card h3 {
+    font-size: 1rem;
+    color: var(--light-2);
+    margin-bottom: 1rem;
+}
+
+/* ===== FORMS ===== */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group.full { grid-column: span 2; }
+
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--dark-3);
+    border: 1px solid var(--gray-light);
+    border-radius: 4px;
+    color: var(--light);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    transition: border-color 0.3s ease;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--gray);
+}
+
+/* ===== BUTTONS ===== */
+.save-btn {
+    padding: 0.85rem 2.5rem;
+    background: var(--light);
+    color: var(--dark);
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.save-btn:hover {
+    background: var(--light-2);
+}
+
+.add-btn {
+    padding: 0.7rem 1.5rem;
+    background: transparent;
+    color: var(--light);
+    border: 1px dashed var(--gray-light);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.add-btn:hover {
+    border-color: var(--light);
+    background: rgba(255,255,255,0.03);
+}
+
+.delete-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(255,80,80,0.1);
+    color: #ff5050;
+    border: 1px solid rgba(255,80,80,0.25);
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background: rgba(255,80,80,0.25);
+}
+
+.item-save-btn {
+    padding: 0.5rem 1rem;
+    background: rgba(80,200,120,0.1);
+    color: #50c878;
+    border: 1px solid rgba(80,200,120,0.25);
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.item-save-btn:hover {
+    background: rgba(80,200,120,0.25);
+}
+
+/* ===== CRUD LIST ITEMS ===== */
+.crud-list { margin-bottom: 0.5rem; }
+
+.crud-item {
+    background: var(--dark-3);
+    border: 1px solid var(--gray-light);
+    border-radius: 6px;
+    padding: 1.2rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.crud-item .form-group {
+    flex: 1;
+    min-width: 120px;
+}
+
+.crud-item .form-group label {
+    margin-bottom: 0.3rem;
+    font-size: 0.65rem;
+}
+
+.crud-item .form-group input {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.crud-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-bottom: 2px;
+}
+
+/* ===== IMAGE UPLOAD ===== */
+.image-upload-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.img-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid var(--gray-light);
+    border-radius: 4px;
+    background: var(--dark-3);
+}
+
+.upload-btn {
+    padding: 0.6rem 1.2rem;
+    background: transparent;
+    color: var(--light);
+    border: 1px solid var(--gray-light);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    background: var(--light);
+    color: var(--dark);
+}
+
+.crud-item .img-preview {
+    width: 60px;
+    height: 60px;
+}
+
+/* ===== RESPONSIVE ADMIN ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .admin-topbar {
+        display: flex;
+    }
+
+    .admin-main {
+        margin-left: 0;
+        width: 100%;
+        padding: 1.5rem;
+        padding-top: 80px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full {
+        grid-column: span 1;
+    }
+
+    .crud-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .crud-actions {
+        justify-content: flex-end;
+    }
+}

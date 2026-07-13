@@ -1,0 +1,391 @@
+/* ===== GALLERY PAGE ===== */
+.gallery-page {
+    position: relative;
+    z-index: 10;
+    background: var(--dark);
+    min-height: 100vh;
+}
+
+/* Header */
+.gallery-header {
+    padding: 10rem 5vw 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.gallery-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 2rem;
+    transition: color 0.3s ease;
+}
+
+.gallery-back:hover { color: var(--light); }
+
+.gallery-back svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+}
+
+.gallery-header h1 {
+    font-family: var(--font-body);
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--light);
+    margin-bottom: 0.8rem;
+}
+
+.gallery-tag {
+    font-size: 0.85rem;
+    color: var(--gray);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ===== CAROUSEL DISPLAY ===== */
+.gallery-carousel {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 5vw 6rem;
+}
+
+.carousel-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.carousel-track-wrapper {
+    flex: 1;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.carousel-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 60vh;
+}
+
+.carousel-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.carousel-slide.prev {
+    opacity: 0.25;
+    transform: scale(0.85) translateX(-30%);
+    z-index: 5;
+}
+
+.carousel-slide.next {
+    opacity: 0.25;
+    transform: scale(0.85) translateX(30%);
+    z-index: 5;
+}
+
+.carousel-slide img {
+    max-width: 100%;
+    max-height: 65vh;
+    object-fit: contain;
+    border-radius: 2px;
+    cursor: zoom-in;
+    image-rendering: auto;
+}
+
+.carousel-btn {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border: 1px solid var(--gray-light);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+
+.carousel-btn:hover {
+    background: var(--light);
+    color: var(--dark);
+    border-color: var(--light);
+}
+
+.carousel-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+/* Thumbnails */
+.carousel-thumbnails {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-light) transparent;
+}
+
+.carousel-thumbnails::-webkit-scrollbar { height: 4px; }
+.carousel-thumbnails::-webkit-scrollbar-thumb { background: var(--gray-light); border-radius: 2px; }
+
+.thumb {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 3px;
+    overflow: hidden;
+    opacity: 0.35;
+    filter: grayscale(100%);
+    transition: all 0.4s ease;
+    outline: 2px solid transparent;
+}
+
+.thumb:hover {
+    opacity: 0.7;
+    filter: grayscale(30%);
+}
+
+.thumb.active {
+    opacity: 1;
+    filter: grayscale(0%);
+    outline: 2px solid var(--light);
+    outline-offset: 2px;
+}
+
+.thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== MASONRY GRID DISPLAY ===== */
+.gallery-grid-masonry {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 5vw 6rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    grid-auto-flow: dense;
+}
+
+.masonry-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 3px;
+    cursor: pointer;
+    min-height: 220px;
+}
+
+/* Random sizes via nth-child patterns */
+.masonry-item:nth-child(5n+1) { grid-row: span 2; }
+.masonry-item:nth-child(7n+3) { grid-column: span 2; }
+.masonry-item:nth-child(11n+5) { grid-column: span 2; grid-row: span 2; }
+
+.masonry-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+    filter: grayscale(20%);
+    image-rendering: auto;
+}
+
+.masonry-item:hover img {
+    transform: scale(1.06);
+    filter: grayscale(0%);
+}
+
+/* ===== LIGHTBOX ===== */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.96);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.lightbox.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-image-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.lightbox-image-wrap img {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 2px;
+    image-rendering: auto;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    width: 44px;
+    height: 44px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--light);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.lightbox-close:hover {
+    background: var(--light);
+    color: var(--dark);
+    border-color: var(--light);
+}
+
+.lightbox-close svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--light);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.lightbox-nav:hover {
+    background: var(--light);
+    color: var(--dark);
+    border-color: var(--light);
+}
+
+.lightbox-prev { left: 2rem; }
+.lightbox-next { right: 2rem; }
+
+.lightbox-nav svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.lightbox-counter {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    color: var(--gray);
+    text-transform: uppercase;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .gallery-grid-masonry {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-header { padding: 8rem 5vw 2rem; }
+    .gallery-header h1 { font-size: clamp(2rem, 8vw, 3rem); }
+
+    .carousel-btn { width: 40px; height: 40px; }
+    .carousel-btn svg { width: 16px; height: 16px; }
+    .carousel-slide img { max-height: 50vh; }
+    .carousel-track { min-height: 45vh; }
+
+    .thumb { width: 50px; height: 50px; }
+
+    .gallery-grid-masonry {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .masonry-item { min-height: 160px; }
+    .masonry-item:nth-child(5n+1) { grid-row: span 1; }
+    .masonry-item:nth-child(11n+5) { grid-column: span 1; grid-row: span 1; }
+
+    .lightbox-prev { left: 1rem; }
+    .lightbox-next { right: 1rem; }
+    .lightbox-close { top: 1rem; right: 1rem; }
+    .lightbox-nav { width: 40px; height: 40px; }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid-masonry {
+        grid-template-columns: 1fr 1fr;
+    }
+    .masonry-item:nth-child(7n+3) { grid-column: span 1; }
+}
