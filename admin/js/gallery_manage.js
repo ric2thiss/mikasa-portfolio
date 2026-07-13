@@ -7,24 +7,71 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(form);
-            formData.append('action', 'add_gallery_image');
+            
+            const btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            
+            const fileInput = form.querySelector('input[type="file"]');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                btn.disabled = false;
+                return;
+            }
 
-            const res = await fetch(API, {
-                method: 'POST',
-                body: formData
-            });
-            const json = await res.json();
-            if (json.success) {
-                if (json.errors && json.errors.length > 0) {
-                    showAlert('Images uploaded with some errors: ' + json.errors.join(', '), 'error');
-                } else {
-                    showAlert('Images uploaded successfully!', 'success');
+            const portfolioId = form.querySelector('input[name="portfolio_id"]').value;
+            const caption = form.querySelector('input[name="caption"]').value;
+
+            let indicator = document.getElementById('upload-indicator');
+            if (!indicator) {
+                indicator = document.createElement('span');
+                indicator.id = 'upload-indicator';
+                indicator.style.marginLeft = '1rem';
+                indicator.style.color = '#50c878';
+                indicator.style.fontWeight = 'bold';
+                btn.parentNode.insertBefore(indicator, btn.nextSibling);
+            }
+
+            let successCount = 0;
+            let errorMessages = [];
+
+            // Upload files one by one to bypass server post_max_size and max_file_uploads limits
+            for (let i = 0; i < files.length; i++) {
+                btn.textContent = `Uploading...`;
+                indicator.textContent = ` ${i + 1} of ${files.length} images...`;
+                
+                const fd = new FormData();
+                fd.append('action', 'add_gallery_image');
+                fd.append('portfolio_id', portfolioId);
+                fd.append('caption', caption);
+                fd.append('images[]', files[i]);
+
+                try {
+                    const res = await fetch(API, { method: 'POST', body: fd });
+                    const json = await res.json();
+                    if (json.success) {
+                        successCount++;
+                        if (json.errors && json.errors.length > 0) {
+                            errorMessages.push(...json.errors);
+                        }
+                    } else {
+                        errorMessages.push(`File ${files[i].name}: ${json.error || 'Failed'}`);
+                    }
+                } catch (err) {
+                    errorMessages.push(`File ${files[i].name} failed to upload.`);
                 }
-                form.reset();
-                loadGallery();
+            }
+
+            btn.textContent = 'Upload Images';
+            btn.disabled = false;
+            indicator.textContent = '';
+            form.reset();
+            loadGallery();
+
+            if (errorMessages.length > 0) {
+                showAlert(`${successCount} uploaded, but errors occurred: ` + errorMessages.join(', '), 'error');
             } else {
-                showAlert(json.error || 'Upload failed.', 'error');
+                showAlert(`Successfully uploaded ${successCount} images!`, 'success');
             }
         });
     }

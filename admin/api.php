@@ -203,21 +203,31 @@ try {
             $slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', trim($catName)));
             $slug = trim($slug, '-');
 
-            // Handle image upload
-            $imagePath = $_POST['existing_image'] ?? '';
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../assets/images/portfolio/';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-                $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-                $filename = 'portfolio_' . time() . '_' . uniqid() . '.' . $ext;
-                move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename);
-                $imagePath = 'assets/images/portfolio/' . $filename;
-            }
-
             if ($id) {
-                $stmt = $pdo->prepare("UPDATE portfolio SET category_name=?, category_tag=?, slug=?, display_type=?, image_path=?, sort_order=? WHERE id=?");
-                $stmt->execute([$catName, $catTag, $slug, $displayType, $imagePath, $order, $id]);
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = __DIR__ . '/../assets/images/portfolio/';
+                    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+                    $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                    $filename = 'portfolio_' . time() . '_' . uniqid() . '.' . $ext;
+                    move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename);
+                    $imagePath = 'assets/images/portfolio/' . $filename;
+                    
+                    $stmt = $pdo->prepare("UPDATE portfolio SET category_name=?, category_tag=?, slug=?, display_type=?, image_path=?, sort_order=? WHERE id=?");
+                    $stmt->execute([$catName, $catTag, $slug, $displayType, $imagePath, $order, $id]);
+                } else {
+                    $stmt = $pdo->prepare("UPDATE portfolio SET category_name=?, category_tag=?, slug=?, display_type=?, sort_order=? WHERE id=?");
+                    $stmt->execute([$catName, $catTag, $slug, $displayType, $order, $id]);
+                }
             } else {
+                $imagePath = '';
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = __DIR__ . '/../assets/images/portfolio/';
+                    if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+                    $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                    $filename = 'portfolio_' . time() . '_' . uniqid() . '.' . $ext;
+                    move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename);
+                    $imagePath = 'assets/images/portfolio/' . $filename;
+                }
                 $stmt = $pdo->prepare("INSERT INTO portfolio (category_name, category_tag, slug, display_type, image_path, sort_order) VALUES (?,?,?,?,?,?)");
                 $stmt->execute([$catName, $catTag, $slug, $displayType, $imagePath, $order]);
             }
