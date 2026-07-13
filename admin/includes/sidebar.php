@@ -13,6 +13,7 @@
         <li><a href="portfolio.php" class="<?= basename($_SERVER['PHP_SELF']) == 'portfolio.php' ? 'active' : '' ?>">Portfolio</a></li>
         <li><a href="testimonial.php" class="<?= basename($_SERVER['PHP_SELF']) == 'testimonial.php' ? 'active' : '' ?>">Testimonial</a></li>
         <li><a href="cta.php" class="<?= basename($_SERVER['PHP_SELF']) == 'cta.php' ? 'active' : '' ?>">CTA / Contact</a></li>
+        <li><a href="seo.php" class="<?= basename($_SERVER['PHP_SELF']) == 'seo.php' ? 'active' : '' ?>">SEO Settings</a></li>
         <li><a href="social.php" class="<?= basename($_SERVER['PHP_SELF']) == 'social.php' ? 'active' : '' ?>">Social Links</a></li>
         <li><a href="footer.php" class="<?= basename($_SERVER['PHP_SELF']) == 'footer.php' ? 'active' : '' ?>">Footer</a></li>
         <li><a href="messages.php" class="<?= basename($_SERVER['PHP_SELF']) == 'messages.php' ? 'active' : '' ?>">Messages</a></li>

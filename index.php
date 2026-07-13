@@ -1,5 +1,40 @@
 <?php require_once 'config.php';
 
+// Track Visitor
+try {
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $date = date('Y-m-d');
+    
+    // Check if IP already visited today
+    $checkStmt = $pdo->prepare("SELECT id FROM page_views WHERE ip_address = ? AND visit_date = ?");
+    $checkStmt->execute([$ip, $date]);
+    if (!$checkStmt->fetch()) {
+        // Fetch location data from a free IP API
+        $country = 'Unknown';
+        $city = 'Unknown';
+        if ($ip !== '127.0.0.1' && $ip !== '::1') {
+            $ch = curl_init("http://ip-api.com/json/{$ip}?fields=country,city,status");
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
+            $geoData = curl_exec($ch);
+            curl_close($ch);
+            
+            if ($geoData) {
+                $geo = json_decode($geoData, true);
+                if (isset($geo['status']) && $geo['status'] === 'success') {
+                    $country = $geo['country'] ?? 'Unknown';
+                    $city = $geo['city'] ?? 'Unknown';
+                }
+            }
+        }
+        
+        $insertStmt = $pdo->prepare("INSERT INTO page_views (ip_address, country, city, visit_date, visit_time, user_agent) VALUES (?, ?, ?, ?, NOW(), ?)");
+        $insertStmt->execute([$ip, $country, $city, $date, $_SERVER['HTTP_USER_AGENT'] ?? '']);
+    }
+} catch (Exception $e) {
+    // Ignore tracking errors so page still loads
+}
+
 // Fetch all data
 $s = getAllSettings($pdo);
 $stats = $pdo->query("SELECT * FROM stats ORDER BY sort_order")->fetchAll();
@@ -16,9 +51,11 @@ $heroTags = array_filter(array_map('trim', explode(',', $s['hero_tags'] ?? '')))
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mikasa Fine Arts Photography | Dubai</title>
-    <meta name="description"
-        content="Mikasa — Freelance Fine Arts Photographer in Dubai. Fashion, Portraits, Weddings, Events & Graphic Design.">
+    <title><?= htmlspecialchars($s['seo_title'] ?? 'Mikasa Fine Arts Photography | Dubai') ?></title>
+    <meta name="description" content="<?= htmlspecialchars($s['seo_description'] ?? 'Mikasa — Freelance Fine Arts Photographer in Dubai. Fashion, Portraits, Weddings, Events & Graphic Design.') ?>">
+    <?php if (!empty($s['seo_keywords'])): ?>
+    <meta name="keywords" content="<?= htmlspecialchars($s['seo_keywords']) ?>">
+    <?php endif; ?>
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 

@@ -17,6 +17,36 @@ if (!in_array($action, $publicActions) && !isset($_SESSION['admin_id'])) {
 try {
     switch ($action) {
 
+        /* ========== ANALYTICS ========== */
+        case 'get_analytics_data':
+            try {
+                $filter = $_GET['filter'] ?? 'week';
+                
+                // Time filter logic
+                $dateCondition = "";
+                if ($filter == 'day') $dateCondition = "visit_date = CURDATE()";
+                elseif ($filter == 'week') $dateCondition = "visit_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+                elseif ($filter == 'month') $dateCondition = "visit_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)";
+                elseif ($filter == 'year') $dateCondition = "visit_date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+                else $dateCondition = "1=1";
+
+                // Visits Line Chart Data
+                $visitsQuery = $pdo->prepare("SELECT visit_date, COUNT(*) as count FROM page_views WHERE $dateCondition GROUP BY visit_date ORDER BY visit_date ASC");
+                $visitsQuery->execute();
+                $visitsData = $visitsQuery->fetchAll();
+
+                // Location Bar Chart Data
+                $locQuery = $pdo->prepare("SELECT country, COUNT(*) as count FROM page_views WHERE $dateCondition GROUP BY country ORDER BY count DESC LIMIT 10");
+                $locQuery->execute();
+                $locData = $locQuery->fetchAll();
+
+                echo json_encode(['success' => true, 'visits' => $visitsData, 'locations' => $locData]);
+            } catch (PDOException $e) {
+                // If table doesn't exist yet, just return empty data so charts still render blank
+                echo json_encode(['success' => true, 'visits' => [], 'locations' => []]);
+            }
+            break;
+
         /* ========== PAGES ========== */
         case 'get_pages':
             $rows = $pdo->query("SELECT * FROM pages ORDER BY created_at ASC")->fetchAll();
