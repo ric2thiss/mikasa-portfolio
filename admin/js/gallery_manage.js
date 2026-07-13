@@ -16,7 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const json = await res.json();
             if (json.success) {
-                showAlert('Image uploaded successfully!', 'success');
+                if (json.errors && json.errors.length > 0) {
+                    showAlert('Images uploaded with some errors: ' + json.errors.join(', '), 'error');
+                } else {
+                    showAlert('Images uploaded successfully!', 'success');
+                }
                 form.reset();
                 loadGallery();
             } else {

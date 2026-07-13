@@ -218,14 +218,22 @@ try {
             $maxSort = $sort->fetchColumn();
 
             $uploaded = 0;
+            $errors = [];
             $uploadDir = __DIR__ . '/../assets/images/portfolio/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            // Check if post_max_size was exceeded (causes empty $_POST and $_FILES)
+            if (empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0) {
+                echo json_encode(['success' => false, 'error' => 'Total file size exceeds server limits. Please upload fewer or smaller images.']);
+                exit;
+            }
 
             // Handle multiple files
             if (isset($_FILES['images']) && is_array($_FILES['images']['name'])) {
                 $count = count($_FILES['images']['name']);
                 for ($i = 0; $i < $count; $i++) {
-                    if ($_FILES['images']['error'][$i] === UPLOAD_ERR_OK) {
+                    $errCode = $_FILES['images']['error'][$i];
+                    if ($errCode === UPLOAD_ERR_OK) {
                         $ext = pathinfo($_FILES['images']['name'][$i], PATHINFO_EXTENSION);
                         $filename = 'gallery_' . time() . '_' . uniqid() . '.' . $ext;
                         if (move_uploaded_file($_FILES['images']['tmp_name'][$i], $uploadDir . $filename)) {
@@ -234,27 +242,41 @@ try {
                             $stmt = $pdo->prepare("INSERT INTO gallery_images (portfolio_id, image_path, caption, sort_order) VALUES (?,?,?,?)");
                             $stmt->execute([$portfolioId, $imagePath, $caption, $maxSort]);
                             $uploaded++;
+                        } else {
+                            $errors[] = "Failed to save file: " . $_FILES['images']['name'][$i];
                         }
+                    } elseif ($errCode !== UPLOAD_ERR_NO_FILE) {
+                        if ($errCode == UPLOAD_ERR_INI_SIZE) $errors[] = $_FILES['images']['name'][$i] . " exceeds maximum upload size.";
+                        else $errors[] = "Error code $errCode for " . $_FILES['images']['name'][$i];
                     }
                 }
             } 
             // Fallback for single file upload just in case
-            elseif (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-                $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-                $filename = 'gallery_' . time() . '_' . uniqid() . '.' . $ext;
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
-                    $imagePath = 'assets/images/portfolio/' . $filename;
-                    $maxSort++;
-                    $stmt = $pdo->prepare("INSERT INTO gallery_images (portfolio_id, image_path, caption, sort_order) VALUES (?,?,?,?)");
-                    $stmt->execute([$portfolioId, $imagePath, $caption, $maxSort]);
-                    $uploaded++;
+            elseif (isset($_FILES['image'])) {
+                $errCode = $_FILES['image']['error'];
+                if ($errCode === UPLOAD_ERR_OK) {
+                    $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                    $filename = 'gallery_' . time() . '_' . uniqid() . '.' . $ext;
+                    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $filename)) {
+                        $imagePath = 'assets/images/portfolio/' . $filename;
+                        $maxSort++;
+                        $stmt = $pdo->prepare("INSERT INTO gallery_images (portfolio_id, image_path, caption, sort_order) VALUES (?,?,?,?)");
+                        $stmt->execute([$portfolioId, $imagePath, $caption, $maxSort]);
+                        $uploaded++;
+                    } else {
+                        $errors[] = "Failed to save the file.";
+                    }
+                } elseif ($errCode !== UPLOAD_ERR_NO_FILE) {
+                    if ($errCode == UPLOAD_ERR_INI_SIZE) $errors[] = "File exceeds maximum upload size.";
+                    else $errors[] = "Upload error code: $errCode";
                 }
             }
 
             if ($uploaded > 0) {
-                echo json_encode(['success' => true]);
+                echo json_encode(['success' => true, 'errors' => $errors]);
             } else {
-                echo json_encode(['success' => false, 'error' => 'No images uploaded']);
+                $errMsg = count($errors) > 0 ? implode(', ', $errors) : 'No valid images were uploaded.';
+                echo json_encode(['success' => false, 'error' => $errMsg]);
             }
             break;
 
