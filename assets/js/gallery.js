@@ -1,5 +1,35 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    /* ===== LAZY LOADING (IntersectionObserver) ===== */
+    const lazyImages = document.querySelectorAll('img.lazy');
+    
+    if ('IntersectionObserver' in window) {
+        const lazyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                        img.classList.remove('lazy');
+                    }
+                    lazyObserver.unobserve(img);
+                }
+            });
+        }, { rootMargin: '200px' });
+
+        lazyImages.forEach(img => lazyObserver.observe(img));
+    } else {
+        // Fallback: load all immediately
+        lazyImages.forEach(img => {
+            if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                img.classList.remove('lazy');
+            }
+        });
+    }
+
     /* ===== CAROUSEL ===== */
     const track = document.getElementById('carousel-track');
     const thumbsWrap = document.getElementById('carousel-thumbnails');
@@ -12,7 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let current = 0;
         const total = slides.length;
 
+        // Ensure a slide's image is loaded (swap data-src to src)
+        function ensureLoaded(index) {
+            if (index < 0 || index >= total) return;
+            const img = slides[index].querySelector('img');
+            if (img && img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                img.classList.remove('lazy');
+            }
+        }
+
         function updateCarousel(index) {
+            // Preload current, prev, and next slides
+            ensureLoaded(index);
+            ensureLoaded((index - 1 + total) % total);
+            ensureLoaded((index + 1) % total);
+            // Also preload 2 ahead for snappy feel
+            ensureLoaded((index + 2) % total);
+
             slides.forEach((s, i) => {
                 s.classList.remove('active', 'prev', 'next');
                 if (i === index) s.classList.add('active');
@@ -78,35 +126,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightboxPrev = document.getElementById('lightbox-prev');
     const lightboxNext = document.getElementById('lightbox-next');
 
-    // Gather all image sources
-    const allImages = [];
-    document.querySelectorAll('.carousel-slide img, .masonry-item img').forEach(img => {
-        allImages.push(img.src);
+    // Gather FULL-RESOLUTION image sources from data-full attributes
+    const allFullImages = [];
+    document.querySelectorAll('.carousel-slide, .masonry-item').forEach(el => {
+        allFullImages.push(el.dataset.full || '');
     });
 
     let lbIndex = 0;
 
     function openLightbox(index) {
-        if (!lightbox || allImages.length === 0) return;
+        if (!lightbox || allFullImages.length === 0) return;
         lbIndex = index;
-        lightboxImg.src = allImages[lbIndex];
-        lightboxCounter.textContent = `${lbIndex + 1} / ${allImages.length}`;
+        lightboxImg.src = allFullImages[lbIndex];
+        lightboxCounter.textContent = `${lbIndex + 1} / ${allFullImages.length}`;
         lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('lightbox-open');
     }
 
     function closeLightbox() {
         lightbox.classList.remove('active');
         document.body.style.overflow = '';
+        document.body.classList.remove('lightbox-open');
     }
 
     function lightboxGo(dir) {
-        lbIndex = (lbIndex + dir + allImages.length) % allImages.length;
+        lbIndex = (lbIndex + dir + allFullImages.length) % allFullImages.length;
         lightboxImg.style.opacity = 0;
         setTimeout(() => {
-            lightboxImg.src = allImages[lbIndex];
+            lightboxImg.src = allFullImages[lbIndex];
             lightboxImg.style.opacity = 1;
-            lightboxCounter.textContent = `${lbIndex + 1} / ${allImages.length}`;
+            lightboxCounter.textContent = `${lbIndex + 1} / ${allFullImages.length}`;
         }, 200);
     }
 

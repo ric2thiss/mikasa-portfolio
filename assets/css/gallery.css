@@ -6,6 +6,17 @@
     min-height: 100vh;
 }
 
+/* Lazy image fade-in */
+img.lazy {
+    opacity: 0.3;
+    filter: blur(5px);
+    transition: opacity 0.5s ease, filter 0.5s ease;
+}
+img.lazy[src]:not([data-src]) {
+    opacity: 1;
+    filter: none;
+}
+
 /* Header */
 .gallery-header {
     padding: 10rem 5vw 3rem;
@@ -239,6 +250,10 @@
 }
 
 /* ===== LIGHTBOX ===== */
+body.lightbox-open nav {
+    z-index: 1 !important;
+}
+
 .lightbox {
     position: fixed;
     inset: 0;

@@ -1,4 +1,4 @@
-const API = 'api.php';
+var API = 'api.php';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadGallery();
