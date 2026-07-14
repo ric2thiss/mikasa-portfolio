@@ -26,28 +26,101 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Contact — Mikasa Fine Arts Photography</title>
     <link rel="stylesheet" href="assets/css/styles.css">
     <style>
-        .contact-page { padding: 10rem 5vw 6rem; max-width: 900px; margin: 0 auto; }
-        .contact-page h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 1rem; color: var(--light); }
-        .contact-page .sub { color: var(--gray); font-size: 1rem; margin-bottom: 3rem; }
-        .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .contact-form .full { grid-column: span 2; }
+        .contact-layout { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            min-height: 100vh;
+        }
+        .contact-left {
+            position: relative;
+            background-image: url('assets/images/contact-hero.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding-top: 80px; /* Offset for nav */
+        }
+        .contact-left::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .overlay-text {
+            font-size: clamp(4rem, 8vw, 12rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px #fff;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            line-height: 0.9;
+            text-shadow: 
+                5px 5px 0px rgba(0,0,0,0.8),
+                10px 10px 0px rgba(0,0,0,0.5),
+                15px 15px 10px rgba(0,0,0,0.5);
+            letter-spacing: -2px;
+        }
+        .contact-right {
+            padding: 80px 15% 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .contact-right h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 0.5rem; color: var(--light); }
+        .contact-right .sub { color: var(--gray); font-size: 1rem; margin-bottom: 2.5rem; }
+        
+        .contact-info-block {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .contact-info-block p {
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .contact-info-block p strong {
+            color: var(--light);
+            font-weight: 600;
+            min-width: 160px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .contact-form { display: grid; grid-template-columns: 1fr; gap: 1.2rem; }
         .contact-form label { display: block; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 0.4rem; }
         .contact-form input, .contact-form textarea {
             width: 100%; padding: 0.85rem 1rem; background: var(--dark-2); border: 1px solid var(--gray-light);
             border-radius: 4px; color: var(--light); font-family: var(--font-body); font-size: 0.9rem; resize: vertical;
+            box-sizing: border-box;
         }
         .contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--gray); }
         .contact-submit {
-            grid-column: span 2; padding: 1rem 3rem; background: var(--light); color: var(--dark); border: none;
+            padding: 1rem 3rem; background: var(--light); color: var(--dark); border: none;
             font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;
             cursor: pointer; border-radius: 4px; transition: background 0.3s ease; margin-top: 0.5rem;
         }
         .contact-submit:hover { background: var(--light-2); }
         .msg-success { background: rgba(80,200,120,0.1); color: #50c878; border: 1px solid rgba(80,200,120,0.2); padding: 1rem; border-radius: 6px; margin-bottom: 2rem; }
         .msg-error { background: rgba(255,80,80,0.1); color: #ff5050; border: 1px solid rgba(255,80,80,0.2); padding: 1rem; border-radius: 6px; margin-bottom: 2rem; }
-        @media (max-width: 768px) {
-            .contact-form { grid-template-columns: 1fr; }
-            .contact-form .full, .contact-submit { grid-column: span 1; }
+        
+        @media (max-width: 1200px) {
+            .contact-right { padding: 80px 10% 4rem; }
+        }
+        @media (max-width: 900px) {
+            .contact-layout { grid-template-columns: 1fr; }
+            .contact-left { min-height: 40vh; }
+            .contact-right { padding: 3rem 5%; }
+            .overlay-text { font-size: 4rem; }
         }
     </style>
 </head>
@@ -72,25 +145,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </ul>
     </div>
 
-    <main class="contact-page">
-        <h1>Get In Touch</h1>
-        <p class="sub"><?= htmlspecialchars($s['cta_desc'] ?? 'Available for freelance projects worldwide.') ?></p>
+    <main class="contact-layout">
+        <div class="contact-left">
+            <div class="overlay-text">Work<br>With<br>Me</div>
+        </div>
+        <div class="contact-right">
+            <h1>Get In Touch</h1>
+            <p class="sub"><?= htmlspecialchars($s['cta_desc'] ?? 'Available for freelance projects worldwide.') ?></p>
 
-        <?php if ($success): ?>
-            <div class="msg-success">Your message has been sent successfully! I'll get back to you soon.</div>
-        <?php elseif ($error): ?>
-            <div class="msg-error"><?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
+            <div class="contact-info-block">
+                <p><strong>Contact Number:</strong> 055 236 4679</p>
+                <p><strong>Email:</strong> chrzane000@gmail.com</p>
+                <p><strong>iMessage:</strong> chrz.ane@icloud.com</p>
+            </div>
 
-        <?php if (!$success): ?>
-        <form method="POST" class="contact-form">
-            <div><label>Name *</label><input type="text" name="name" required></div>
-            <div><label>Email *</label><input type="email" name="email" required></div>
-            <div class="full"><label>Subject</label><input type="text" name="subject"></div>
-            <div class="full"><label>Message *</label><textarea name="message" rows="6" required></textarea></div>
-            <button type="submit" class="contact-submit">Send Message</button>
-        </form>
-        <?php endif; ?>
+            <?php if ($success): ?>
+                <div class="msg-success">Your message has been sent successfully! I'll get back to you soon.</div>
+            <?php elseif ($error): ?>
+                <div class="msg-error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+
+            <?php if (!$success): ?>
+            <form method="POST" class="contact-form">
+                <div><label>Name *</label><input type="text" name="name" required></div>
+                <div><label>Email *</label><input type="email" name="email" required></div>
+                <div><label>Subject</label><input type="text" name="subject"></div>
+                <div><label>Message *</label><textarea name="message" rows="5" required></textarea></div>
+                <button type="submit" class="contact-submit">Send Message</button>
+            </form>
+            <?php endif; ?>
+        </div>
     </main>
 
     <footer>
