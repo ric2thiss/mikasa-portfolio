@@ -33,37 +33,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .contact-left {
             position: relative;
-            background-image: url('assets/images/contact-hero.jpg');
-            background-size: cover;
-            background-position: center;
+            background-color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             padding-top: 80px; /* Offset for nav */
         }
-        .contact-left::after {
-            content: '';
+        .hero-image {
             position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.2);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 75%;
+            height: 75%;
+            background-image: url('assets/images/contact-hero.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: grayscale(100%) contrast(120%);
             z-index: 1;
         }
         .overlay-text {
-            font-size: clamp(4rem, 8vw, 12rem);
+            font-size: clamp(4rem, 10vw, 15rem);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-weight: 900;
             text-transform: uppercase;
-            color: transparent;
-            -webkit-text-stroke: 2px #fff;
+            color: #fff;
             position: relative;
             z-index: 2;
             text-align: center;
-            line-height: 0.9;
-            text-shadow: 
-                5px 5px 0px rgba(0,0,0,0.8),
-                10px 10px 0px rgba(0,0,0,0.5),
-                15px 15px 10px rgba(0,0,0,0.5);
-            letter-spacing: -2px;
+            line-height: 0.85;
+            mix-blend-mode: difference;
+            letter-spacing: -0.05em;
         }
         .contact-right {
             padding: 80px 15% 4rem;
@@ -147,7 +148,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="contact-layout">
         <div class="contact-left">
-            <div class="overlay-text">Work<br>With<br>Me</div>
+            <div class="hero-image"></div>
+            <div class="overlay-text">WORK<br>WITH<br>ME</div>
         </div>
         <div class="contact-right">
             <h1>Get In Touch</h1>
