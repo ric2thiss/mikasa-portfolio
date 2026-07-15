@@ -59,7 +59,14 @@ $usedText = $totalSpace !== false ? formatBytes($usedSpace) . " Used of " . form
         </div>
     </div>
 
-    <h3 style="margin-top: 3rem; margin-bottom: 1rem;">Recent Visitor Log</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 3rem; margin-bottom: 1rem;">
+        <h3 style="margin:0;">Recent Visitor Log</h3>
+        <div style="display:flex; gap: 1rem;">
+            <input type="text" id="filter-country" placeholder="Country" class="filter-select" onkeyup="if(event.key === 'Enter') { currentPage=1; loadAnalytics(); }">
+            <input type="text" id="filter-city" placeholder="City" class="filter-select" onkeyup="if(event.key === 'Enter') { currentPage=1; loadAnalytics(); }">
+            <button onclick="currentPage=1; loadAnalytics()" style="padding: 0.5rem 1rem; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Filter</button>
+        </div>
+    </div>
     <div style="overflow-x:auto; background:var(--dark-2); border:1px solid var(--gray-light); border-radius:8px;">
         <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.9rem;">
             <thead style="background:var(--dark-3); border-bottom:1px solid var(--gray-light);">
@@ -76,6 +83,10 @@ $usedText = $totalSpace !== false ? formatBytes($usedSpace) . " Used of " . form
                 <tr><td colspan="6" style="padding:1rem; text-align:center; color:var(--gray);">Loading data...</td></tr>
             </tbody>
         </table>
+    </div>
+    
+
+    <div id="pagination-controls" style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
     </div>
 
     <h2 style="margin-top: 3rem;">Portfolio Storage Stats</h2>
@@ -98,10 +109,14 @@ $usedText = $totalSpace !== false ? formatBytes($usedSpace) . " Used of " . form
 <script>
 let visitsChartObj = null;
 let locChartObj = null;
+let currentPage = 1;
 
 async function loadAnalytics() {
     const filter = document.getElementById('time-filter').value;
-    const res = await fetch(`api.php?action=get_analytics_data&filter=${filter}`);
+    const country = document.getElementById('filter-country') ? document.getElementById('filter-country').value : '';
+    const city = document.getElementById('filter-city') ? document.getElementById('filter-city').value : '';
+    
+    const res = await fetch(`api.php?action=get_analytics_data&filter=${filter}&page=${currentPage}&country=${encodeURIComponent(country)}&city=${encodeURIComponent(city)}`);
     const json = await res.json();
     if (!json.success) return;
 
@@ -168,6 +183,16 @@ async function loadAnalytics() {
                 <td style="padding:1rem; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${row.user_agent || ''}">${row.user_agent || 'Unknown'}</td>
             </tr>`;
         }).join('');
+    }
+
+    // Pagination Controls
+    const paginationDiv = document.getElementById('pagination-controls');
+    if (paginationDiv && json.total_pages) {
+        let pagesHtml = '';
+        for (let i = 1; i <= json.total_pages; i++) {
+            pagesHtml += `<button onclick="currentPage=${i}; loadAnalytics()" style="padding: 0.35rem 0.75rem; background: ${i === json.current_page ? '#50c878' : 'var(--dark-3)'}; color: ${i === json.current_page ? '#000' : 'var(--light)'}; border: 1px solid var(--gray-light); border-radius: 4px; cursor: pointer; font-weight: ${i === json.current_page ? 'bold' : 'normal'}; transition: background 0.2s;">${i}</button>`;
+        }
+        paginationDiv.innerHTML = pagesHtml;
     }
 }
 

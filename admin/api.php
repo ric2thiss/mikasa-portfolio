@@ -40,12 +40,36 @@ try {
                 $locQuery->execute();
                 $locData = $locQuery->fetchAll();
 
+                // Raw Table Data Filter & Pagination
+                $rawCondition = $dateCondition;
+                $params = [];
+                
+                if (!empty($_GET['country'])) {
+                    $rawCondition .= " AND country LIKE ?";
+                    $params[] = '%' . $_GET['country'] . '%';
+                }
+                
+                if (!empty($_GET['city'])) {
+                    $rawCondition .= " AND city LIKE ?";
+                    $params[] = '%' . $_GET['city'] . '%';
+                }
+
+                $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+                $limit = 10;
+                $offset = ($page - 1) * $limit;
+
+                // get total count for pagination
+                $countQuery = $pdo->prepare("SELECT COUNT(*) FROM page_views WHERE $rawCondition");
+                $countQuery->execute($params);
+                $totalRows = $countQuery->fetchColumn();
+                $totalPages = max(1, ceil($totalRows / $limit));
+
                 // Raw Table Data
-                $rawQuery = $pdo->prepare("SELECT ip_address, country, city, visit_date, visit_time, user_agent FROM page_views WHERE $dateCondition ORDER BY visit_time DESC LIMIT 100");
-                $rawQuery->execute();
+                $rawQuery = $pdo->prepare("SELECT ip_address, country, city, visit_date, visit_time, user_agent FROM page_views WHERE $rawCondition ORDER BY visit_time DESC LIMIT $limit OFFSET $offset");
+                $rawQuery->execute($params);
                 $rawData = $rawQuery->fetchAll();
 
-                echo json_encode(['success' => true, 'visits' => $visitsData, 'locations' => $locData, 'raw_data' => $rawData]);
+                echo json_encode(['success' => true, 'visits' => $visitsData, 'locations' => $locData, 'raw_data' => $rawData, 'total_pages' => $totalPages, 'current_page' => $page]);
             } catch (PDOException $e) {
                 // If table doesn't exist yet, just return empty data so charts still render blank
                 echo json_encode(['success' => true, 'visits' => [], 'locations' => []]);
